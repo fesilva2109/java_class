@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import service.LivroService;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,13 +17,17 @@ import java.util.Optional;
 public class LivroController {
     @Autowired
     private LivroRepository livroRepository;
+    @Autowired
+    private LivroService livroService;
 
     // CREATE, READ, UPDATE, DELETE
     // POST, GET, PUT, DELETE
 
     @PostMapping
     public ResponseEntity<Livro> createLivro(@RequestBody LivroRequest livro) {
-        LivroRequest livroSalvo = livroRepository.save(livro);
+
+        Livro livroSalvo = livroRepository.save(livroService.requestToLivro(livro));
+
         return new ResponseEntity<>(livroSalvo,HttpStatus.CREATED);
     }
 
