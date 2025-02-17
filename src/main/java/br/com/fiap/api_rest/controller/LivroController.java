@@ -1,5 +1,6 @@
 package br.com.fiap.api_rest.controller;
 
+import br.com.fiap.api_rest.dto.LivroRequest;
 import br.com.fiap.api_rest.model.Livro;
 import br.com.fiap.api_rest.repository.LivroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class LivroController {
     // POST, GET, PUT, DELETE
 
     @PostMapping
-    public ResponseEntity<Livro> createLivro(@RequestBody Livro livro) {
-        Livro livroSalvo = livroRepository.save(livro);
+    public ResponseEntity<Livro> createLivro(@RequestBody LivroRequest livro) {
+        LivroRequest livroSalvo = livroRepository.save(livro);
         return new ResponseEntity<>(livroSalvo,HttpStatus.CREATED);
     }
 
@@ -40,8 +41,13 @@ public class LivroController {
         return new ResponseEntity<>(livro.get(),HttpStatus.OK);
     }
 
-    @PutMapping
-    public ResponseEntity<Livro> updateLivro(@RequestBody Livro livro) {
+    @PutMapping ("/{id}")
+    public ResponseEntity<Livro> updateLivro(@RequestBody Livro livro, @PathVariable Long id) {
+        Optional<Livro> livroExistente = livroRepository.findById(id);
+        if(livroExistente.isEmpty()){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+        livro.setId(livroExistente.get().getId());
         Livro livroSalvo = livroRepository.save(livro);
         return new ResponseEntity<>(livroSalvo,HttpStatus.CREATED);
     }
