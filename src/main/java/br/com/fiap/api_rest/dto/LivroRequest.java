@@ -15,7 +15,7 @@ public class LivroRequest {
     private int preco;
     @NotNull(message = "A categoria é obrigatória")
     private Categoria categoria;
-
+    @Pattern(regexp = "^970\\d{10}$|^970\\d{7}$" )
     private String isbn;
 
 
