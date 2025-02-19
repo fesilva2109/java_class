@@ -1,15 +1,46 @@
 package br.com.fiap.api_rest.dto;
 
-public class LivroRequest {
-    private String titulo;
-    private String autor;
+import br.com.fiap.api_rest.model.Categoria;
+import jakarta.validation.constraints.*;
 
-    public LivroRequest() {
+public class LivroRequest {
+    @NotBlank(message = "O título não pode ser vazio!")
+    @Size(min = 3, max = 254, message = "O título deve ter entre 3 e 254 caracteres")
+    private String titulo;
+    @NotBlank(message = "O título não pode ser vazio!")
+    @Size(min = 3, max = 150, message = "O nome do autor ter entre 3 e 150 caracteres")
+    private String autor;
+    @Min( value = 1, message = " o preço deve ser no mínimo 1")
+    @Max(value = 99, message = "i oreço deve ser no máximo 99")
+    private int preco;
+    @NotNull(message = "A categoria é obrigatória")
+    private Categoria categoria;
+
+    private String isbn;
+
+
+    public int getPreco() {
+        return preco;
     }
 
-    public LivroRequest(String titulo, String autor) {
-        this.titulo = titulo;
-        this.autor = autor;
+    public void setPreco(int preco) {
+        this.preco = preco;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 
     public String getTitulo() {

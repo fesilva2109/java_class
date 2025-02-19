@@ -52,7 +52,8 @@ public class LivroController {
     }
 
     @PutMapping ("/{id}")
-    public ResponseEntity<Livro> updateLivro(@RequestBody LivroRequest livro, @PathVariable Long id) {
+    public ResponseEntity<Livro> updateLivro(@PathVariable Long id,
+                                             @RequestBody LivroRequest livro) {
         Optional<Livro> livroExistente = livroRepository.findById(id);
         if(livroExistente.isEmpty()){
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
