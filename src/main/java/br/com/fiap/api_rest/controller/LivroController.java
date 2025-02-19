@@ -4,11 +4,12 @@ import br.com.fiap.api_rest.dto.LivroRequest;
 import br.com.fiap.api_rest.dto.LivroResponse;
 import br.com.fiap.api_rest.model.Livro;
 import br.com.fiap.api_rest.repository.LivroRepository;
+import br.com.fiap.api_rest.service.LivroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import service.LivroService;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,8 @@ public class LivroController {
     public ResponseEntity<List<LivroResponse>> readLivros() {
         List<Livro> livros = livroRepository.findAll();
         List<LivroResponse> listaLivros = new ArrayList<>();
-        for(Livro livro: livros){
-            listaLivros.add(livroService.livroToResponse(livro));
-        }
-        return new ResponseEntity<>(listaLivros,HttpStatus.OK);
+
+        return new ResponseEntity<>(livroService.livrosToResponse(livros),HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -49,7 +48,7 @@ public class LivroController {
         if (livro.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(livro.get(),HttpStatus.OK);
+        return new ResponseEntity<>(livroService.livroToResponse(livro.get()),HttpStatus.OK);
     }
 
     @PutMapping ("/{id}")
