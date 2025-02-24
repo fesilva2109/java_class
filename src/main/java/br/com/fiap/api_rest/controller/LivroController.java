@@ -47,6 +47,7 @@ public class LivroController {
         //Page<Livro> livros = livroRepository.findAll(pageable);
         return new ResponseEntity<>(livroService.findAll(pageable),HttpStatus.OK);
     }
+
     // @PathVariable localhost:8080/livros/1
     // @RequestParam localhost:8080/livros/?id=1
     @GetMapping("/{id}")
