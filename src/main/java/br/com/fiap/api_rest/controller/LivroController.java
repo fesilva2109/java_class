@@ -7,6 +7,10 @@ import br.com.fiap.api_rest.repository.LivroRepository;
 import br.com.fiap.api_rest.service.LivroService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +40,12 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroResponse>> readLivros() {
-        List<Livro> livros = livroRepository.findAll();
-        List<LivroResponse> listaLivros = new ArrayList<>();
-
-        return new ResponseEntity<>(livroService.livrosToResponse(livros),HttpStatus.OK);
+    public ResponseEntity<Page<LivroResponse>> readLivros() {
+        Pageable pageable = PageRequest.
+                of(0,2,
+                Sort.by("titulo").ascending());
+        //Page<Livro> livros = livroRepository.findAll(pageable);
+        return new ResponseEntity<>(livroService.findAll(pageable),HttpStatus.OK);
     }
     // @PathVariable localhost:8080/livros/1
     // @RequestParam localhost:8080/livros/?id=1
