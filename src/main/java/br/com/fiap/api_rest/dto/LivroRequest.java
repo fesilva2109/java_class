@@ -15,7 +15,7 @@ public class LivroRequest {
     private int preco;
     @NotNull(message = "A categoria é obrigatória")
     private Categoria categoria;
-    @Pattern(regexp = "^970\\d{10}$|^970\\d{7}$" )
+    @Pattern(regexp = "^970\\d{10}$|^970\\d{7}$", message = "O ISBN deve ter 10 OU 13 dígitos e iniciar por 970")
     private String isbn;
 
 

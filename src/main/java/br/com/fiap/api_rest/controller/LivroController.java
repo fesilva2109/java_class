@@ -42,7 +42,8 @@ public class LivroController {
 
         return new ResponseEntity<>(livroService.livrosToResponse(livros),HttpStatus.OK);
     }
-
+    // @PathVariable localhost:8080/livros/1
+    // @RequestParam localhost:8080/livros/?id=1
     @GetMapping("/{id}")
     public ResponseEntity<LivroResponse> readLivro(@PathVariable Long id) {
         Optional<Livro> livro = livroRepository.findById(id);
