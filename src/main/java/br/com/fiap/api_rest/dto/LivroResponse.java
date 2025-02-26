@@ -21,7 +21,7 @@ public class LivroResponse {
         this.infoLivro = infoLivro;
     }
 
-    public Link getLink() {
+    public Link getLink(Link listaDeLivros) {
         return link;
     }
 

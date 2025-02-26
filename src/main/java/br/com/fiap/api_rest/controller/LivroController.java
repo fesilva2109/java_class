@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping(value = "/livros")
 public class LivroController {
@@ -56,7 +59,14 @@ public class LivroController {
         if (livro.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(livroService.livroToResponse(livro.get()),HttpStatus.OK);
+        LivroResponse livroResponse = livroService.livroToResponse(livro.get());
+        livroResponse.getLink(
+                linkTo(
+                        methodOn(LivroController.class)
+                                .readLivros(0)
+                ).withRel("Lista de Livros")
+        );
+        return new ResponseEntity<>(livroResponse,HttpStatus.OK);
     }
 
     @PutMapping ("/{id}")
