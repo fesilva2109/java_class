@@ -6,6 +6,7 @@ import br.com.fiap.api_rest.dto.LivroResponseDTO;
 import br.com.fiap.api_rest.model.Livro;
 import br.com.fiap.api_rest.repository.LivroRepository;
 import br.com.fiap.api_rest.service.LivroService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/livros")
+@Tag(name = "api-livros")
 public class LivroController {
     @Autowired
     private LivroRepository livroRepository;
