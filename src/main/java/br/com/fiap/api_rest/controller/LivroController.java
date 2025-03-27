@@ -1,10 +1,13 @@
-
 package br.com.fiap.api_rest.controller;
 
 import br.com.fiap.api_rest.dto.LivroRequest;
-import br.com.fiap.api_rest.dto.LivroResponseDTO;
+import br.com.fiap.api_rest.dto.LivroResponse;
+import br.com.fiap.api_rest.mapper.LivroMapper;
+import br.com.fiap.api_rest.model.Autor;
 import br.com.fiap.api_rest.model.Livro;
 import br.com.fiap.api_rest.repository.LivroRepository;
+import br.com.fiap.api_rest.service.AutorService;
+import br.com.fiap.api_rest.service.BibliotecaService;
 import br.com.fiap.api_rest.service.LivroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,9 +33,12 @@ import java.util.Optional;
 @Tag(name = "api-livros")
 public class LivroController {
     @Autowired
-    private LivroRepository livroRepository;
-    @Autowired
     private LivroService livroService;
+    private final LivroMapper livroMapper = new LivroMapper();
+    @Autowired
+    private AutorService autorService;
+    @Autowired
+    private BibliotecaService bibliotecaService;
 
     // CREATE, READ, UPDATE, DELETE
     // POST, GET, PUT, DELETE
@@ -46,18 +53,20 @@ public class LivroController {
                     content = @Content(schema = @Schema()))
     })
     @PostMapping
-    public ResponseEntity<Livro> createLivro(@Valid @RequestBody LivroRequest livro) {
-        Livro livroSalvo = livroRepository.save(livroService.requestToLivro(livro));
-        return new ResponseEntity<>(livroSalvo,HttpStatus.CREATED);
+    public ResponseEntity<LivroResponse> createLivro(@Valid @RequestBody LivroRequest livroRequest) {
+        List<Autor> autores = autorService.saveAll(livroRequest.getAutores());
+        Livro livro = livroMapper.requestToLivro(livroRequest);
+        livro.setAutores(autores);
+        livro.setBiblioteca(bibliotecaService.findBibliotecaById(livroRequest.getBiblioteca()));
+        return new ResponseEntity<>(livroService.save(livro),HttpStatus.CREATED);
     }
 
     @Operation(summary = "Lista todos os livros por páginas")
     @GetMapping
-    public ResponseEntity<Page<LivroResponseDTO>> readLivros(@RequestParam(defaultValue = "0") Integer pageNumber) {
+    public ResponseEntity<Page<LivroResponse>> readLivros(@RequestParam(defaultValue = "0") Integer pageNumber) {
         Pageable pageable = PageRequest
-                .of(pageNumber, 2, Sort.by("autor").ascending()
-                        .and(Sort.by("titulo").ascending()));
-        return new ResponseEntity<>(livroService.findAllDTO(pageable), HttpStatus.OK);
+                .of(pageNumber, 2, Sort.by("titulo").ascending());
+        return new ResponseEntity<>(livroService.findAll(pageable), HttpStatus.OK);
     }
 
     // @PathVariable localhost:8080/livros/1
@@ -67,18 +76,17 @@ public class LivroController {
             @ApiResponse(responseCode = "200", description = "Livro encontrado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = LivroResponseDTO.class))),
+                            schema = @Schema(implementation = LivroResponse.class))),
             @ApiResponse(responseCode = "404", description = "Nenhum livro encontrado para o ID fornecido",
                     content = @Content(schema = @Schema()))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<LivroResponseDTO> readLivro(@PathVariable Long id) {
-        Optional<Livro> livro = livroRepository.findById(id);
-        if (livro.isEmpty()) {
+    public ResponseEntity<LivroResponse> readLivro(@PathVariable Long id) {
+        LivroResponse livroResponse = livroService.findById(id);
+        if (livroResponse == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        LivroResponseDTO livroResponseDTO = livroService.livroToResponseDTO(livro.get(), false);
-        return new ResponseEntity<>(livroResponseDTO,HttpStatus.OK);
+        return new ResponseEntity<>(livroResponse,HttpStatus.OK);
     }
 
     @Operation(summary = "Atualiza um livro existente")
@@ -91,16 +99,17 @@ public class LivroController {
                     content = @Content(schema = @Schema()))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Livro> updateLivro(@PathVariable Long id,
-                                             @RequestBody LivroRequest livro) {
-        Optional<Livro> livroExistente = livroRepository.findById(id);
-        if (livroExistente.isEmpty()) {
+    public ResponseEntity<LivroResponse> updateLivro(@PathVariable Long id,
+                                                     @RequestBody LivroRequest livroRequest) {
+        Livro livro = livroService.findLivroById(id);
+        if (livro == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        Livro livroConvertido = livroService.requestToLivro(livro);
-        livroConvertido.setId(livroExistente.get().getId());
-        Livro livroSalvo = livroRepository.save(livroConvertido);
-        return new ResponseEntity<>(livroSalvo,HttpStatus.CREATED);
+        List<Autor> autores = autorService.saveAll(livroRequest.getAutores());
+        Livro livroConvertido = livroMapper.requestToLivro(livroRequest);
+        livroConvertido.setId(livro.getId());
+        livroConvertido.setAutores(autores);
+        return new ResponseEntity<>(livroService.save(livroConvertido),HttpStatus.CREATED);
     }
 
     @Operation(summary = "Exclui um livro por ID")
@@ -112,11 +121,10 @@ public class LivroController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLivro(@PathVariable Long id) {
-        Optional<Livro> livroExistente = livroRepository.findById(id);
-        if (livroExistente.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        boolean deletado = livroService.deleteById(id);
+        if (!deletado) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        livroRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
