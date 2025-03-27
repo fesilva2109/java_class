@@ -1,4 +1,3 @@
-
 package br.com.fiap.api_rest.model;
 
 import jakarta.persistence.*;
@@ -11,7 +10,7 @@ public class Biblioteca {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_endereco")
     private Endereco endereco;
     @OneToMany(mappedBy = "biblioteca")

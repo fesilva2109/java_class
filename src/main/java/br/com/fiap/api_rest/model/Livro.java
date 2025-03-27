@@ -18,6 +18,7 @@ public class Livro {
     @ManyToOne
     @JoinColumn(name = "id_biblioteca")
     private Biblioteca biblioteca;
+    private int numeroExemplar;
 
     public Long getId() {
         return id;
@@ -73,5 +74,13 @@ public class Livro {
 
     public void setBiblioteca(Biblioteca biblioteca) {
         this.biblioteca = biblioteca;
+    }
+
+    public int getNumeroExemplar() {
+        return numeroExemplar;
+    }
+
+    public void setNumeroExemplar(int numeroExemplar) {
+        this.numeroExemplar = numeroExemplar;
     }
 }
